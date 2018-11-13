@@ -11,8 +11,9 @@ classifier = Sequential()
 
 # Adding the layers to CNN
 
-classifier.add(Conv2D(32,(3,3),strides=(1,1),padding='same', input_shape=(64,64,3),activation='relu'))
+classifier.add(Conv2D(32,(3,3),strides=(1,1),padding='valid', input_shape=(64,64,3),activation='relu'))
 classifier.add(MaxPool2D(pool_size=(2,2)))
+classifier.add(Conv2D(32,(3,3), activation = 'relu'))
 classifier.add(Flatten())
 classifier.add(Dense(128,activation='relu'))
 classifier.add(Dense(1,activation='sigmoid'))

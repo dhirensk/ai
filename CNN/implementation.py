@@ -16,6 +16,7 @@ classifier = Sequential()
 classifier.add(Conv2D(32,(3,3),strides=(1,1),padding='valid', input_shape=(64,64,3),activation='relu'))
 classifier.add(MaxPool2D(pool_size=(2,2)))
 classifier.add(Conv2D(32,(3,3), activation = 'relu'))
+classifier.add(MaxPool2D(pool_size=(2,2)))
 classifier.add(Flatten())
 classifier.add(Dense(128,activation='relu'))
 classifier.add(Dense(1,activation='sigmoid'))
@@ -103,6 +104,7 @@ print("Loaded model from disk")
 #find the accuracy of training set & test set which was used earlier
 #You must compile a model before training/testing. Use `model.compile(optimizer, loss)`
 loaded_model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+loaded_model.predict(test_image)
 loaded_model.evaluate(test_image,[[1]])
 loaded_model.summary()
 

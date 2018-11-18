@@ -1,5 +1,4 @@
 # excluding below files
-*.csv
 *.zip
 *.tar
 *.tar.bz2

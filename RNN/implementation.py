@@ -40,3 +40,12 @@ X_train, Y_train = np.array(X_train), np.array(Y_train)
 
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1],1))
 
+#Importing Keras libraries and Packages
+
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers import Dropout
+
+#Initializing the RNN
+regressor = Sequential()

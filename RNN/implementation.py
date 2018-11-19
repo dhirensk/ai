@@ -49,3 +49,9 @@ from keras.layers import Dropout
 
 #Initializing the RNN
 regressor = Sequential()
+
+#Initializing the LSTM and Dropout
+# number of hidden layers in LSTM = n_a
+n_a = 50
+regressor.add(LSTM(n_a, return_sequences=True, input_shape=(X_train.shape[1],X_train.shape[2])))
+regressor.add(Dropout(rate=0.2))

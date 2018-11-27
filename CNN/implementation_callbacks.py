@@ -63,10 +63,11 @@ except Exception as e:
 # include an earlystopping callback
 
 #saves the complete model in CNN_model.h5
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 checkpoint = ModelCheckpoint('CNN_model.h5',monitor='val_loss',save_best_only=True,verbose=1, save_weights_only=False)
+csv_logger = CSVLogger('logs.csv', separator=',', append=True) # important for continuous learning
 stopearly = EarlyStopping(monitor='val_loss',min_delta=0, patience=2, verbose=1)
-callback_list = [checkpoint, stopearly]
+callback_list = [checkpoint, stopearly, csv_logger]
 #classifier.load_weights('CNN_model.h5')
 # Image Augmentation to avoid overfitting
 import time

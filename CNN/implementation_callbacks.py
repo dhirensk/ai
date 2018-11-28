@@ -6,7 +6,9 @@ from keras import backend as K
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPool2D,Flatten,Dense,BatchNormalization, Dropout
 from keras.optimizers import SGD, Adamax, Adam
-
+import pandas as pd
+import csv
+from keras.callbacks import Callback
 
 
 #Conv3D is used for 3D i.e. Videos with time as 3rd dimension
@@ -65,9 +67,64 @@ except Exception as e:
 #saves the complete model in CNN_model.h5
 from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 checkpoint = ModelCheckpoint('CNN_model.h5',monitor='val_loss',save_best_only=True,verbose=1, save_weights_only=False)
-csv_logger = CSVLogger('logs.csv', separator=',', append=True) # important for continuous learning
+next_epoch = 0
+try:
+    if os.path.isfile('epoch_logs.csv'):
+        logfile = pd.read_csv('epoch_logs.csv',header=0)
+        next_epoch = int(logfile.iloc[-1,0])+1
+        
+except Exception as e:
+    print(e)
+
+class CSVLogger2(CSVLogger):
+        def __init__(self, filename, separator, append):       
+            super(CSVLogger2, self).__init__(filename, separator, append)
+           
+        def on_epoch_end(self, epoch, logs=None): 
+            super(CSVLogger2,self).on_epoch_end(epoch+next_epoch, logs)
+            
+
+
+class EpochHistory(Callback):
+    def __init__(self, filename):
+        self.filename = filename
+        self.fieldnames = ['epoch','start_time','end_time','elapsed_time']
+        self.csvfile = None
+        if not os.path.isfile(self.filename):  # no existing log file
+            self.csvfile = open(self.filename, 'a', newline = '') 
+            writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+            writer.writeheader() 
+            self.csvfile.flush()
+        else:
+            file_read = open(self.filename, 'r', newline = '') #cannot read/write using same object
+            if not csv.Sniffer().has_header(file_read.read(1024)): # log file without header
+                self.csvfile = open(self.filename, 'a', newline = '')
+                writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+                writer.writeheader()
+                self.csvfile.flush()
+            else:
+                self.csvfile = open(self.filename, 'a', newline = '')  # log file with header
+    def on_train_end(self):
+        self.csvfile.close()
+            
+    def on_epoch_begin(self, epoch, logs):
+        self.start_time = time.time()
+
+    def on_epoch_end(self,epoch,logs):
+        current_epoch = epoch+ next_epoch
+        self.end_time = time.time()
+        self.elapsed_time = self.end_time - self.start_time        
+        writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+        writer.writerow({'epoch':current_epoch, 'start_time':self.start_time, 
+                         'end_time':self.end_time,'elapsed_time':self.elapsed_time})
+        self.csvfile.flush()
+    
+epoch_history = EpochHistory('epoch_history.csv')    
+
+csv_logger = CSVLogger2('epoch_logs.csv', separator=',', append=True) # important for continuous learning        
 stopearly = EarlyStopping(monitor='val_loss',min_delta=0, patience=2, verbose=1)
-callback_list = [checkpoint, stopearly, csv_logger]
+callback_list = [csv_logger, epoch_history]
+#callback_list = [checkpoint, stopearly, csv_logger]
 #classifier.load_weights('CNN_model.h5')
 # Image Augmentation to avoid overfitting
 import time
@@ -84,7 +141,7 @@ train_datagen = ImageDataGenerator(
 test_datagen = ImageDataGenerator(rescale=1./255)
 
 training_set = train_datagen.flow_from_directory(
-        'dataset/training_set',
+        'dataset/test_set',
         target_size=(64, 64),      # same as the expected input_shape
         batch_size=32,
         class_mode='binary')
@@ -97,10 +154,10 @@ test_set = test_datagen.flow_from_directory(
 # so as to save history
 history = classifier.fit_generator(
         training_set,
-        steps_per_epoch=(8000/32),  # images in training set/batch_size
+        steps_per_epoch=(640/32),  # images in training set/batch_size
         epochs=10,
         validation_data=test_set,
-        validation_steps=(2000/32),
+        validation_steps=(640/32),
         callbacks = callback_list)  # images in test set/batch_size
 
 # print(history.history)

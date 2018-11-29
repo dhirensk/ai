@@ -85,41 +85,51 @@ class CSVLogger2(CSVLogger):
             
 
 
-class EpochHistory(Callback):
-    def __init__(self, filename):
-        self.filename = filename
-        self.fieldnames = ['epoch','start_time','end_time','elapsed_time']
-        self.csvfile = None
-        if not os.path.isfile(self.filename):  # no existing log file
-            self.csvfile = open(self.filename, 'a', newline = '') 
-            writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
-            writer.writeheader() 
-            self.csvfile.flush()
-        else:
-            file_read = open(self.filename, 'r', newline = '') #cannot read/write using same object
-            if not csv.Sniffer().has_header(file_read.read(1024)): # log file without header
-                self.csvfile = open(self.filename, 'a', newline = '')
+    class EpochHistory(Callback):
+        def __init__(self, filename):
+            self.filename = filename
+            self.fieldnames = ['epoch','start_time','end_time','elapsed_time']
+            self.csvfile = None
+            if not os.path.isfile(self.filename):  # no existing log file
+                self.csvfile = open(self.filename, 'a', newline = '') 
                 writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
-                writer.writeheader()
+                writer.writeheader() 
                 self.csvfile.flush()
             else:
-                self.csvfile = open(self.filename, 'a', newline = '')  # log file with header
-    def on_train_end(self):
-        self.csvfile.close()
-            
-    def on_epoch_begin(self, epoch, logs):
-        self.start_time = time.time()
-
-    def on_epoch_end(self,epoch,logs):
-        current_epoch = epoch+ next_epoch
-        self.end_time = time.time()
-        self.elapsed_time = self.end_time - self.start_time        
-        writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
-        writer.writerow({'epoch':current_epoch, 'start_time':self.start_time, 
-                         'end_time':self.end_time,'elapsed_time':self.elapsed_time})
-        self.csvfile.flush()
+                file_read = open(self.filename, 'r', newline = '') #cannot read/write using same object
+                try:
+                    if not csv.Sniffer().has_header(file_read.read(1024)): # log file without header
+                        self.csvfile = open(self.filename, 'a', newline = '')
+                        writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+                        writer.writeheader()
+                        self.csvfile.flush()
+                    else:
+                        self.csvfile = open(self.filename, 'a', newline = '')  # log file with header
+                except Exception as e:
+                    if str(e) == 'Could not determine delimiter' : 
+                        print("exception: Could not determine delimiter")
+                        self.csvfile = open(self.filename, 'a', newline = '')
+                        writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+                        writer.writeheader()
+                        self.csvfile.flush()
+                    else:
+                        raise Exception(str(e))
+        def on_train_end(self):
+            self.csvfile.close()
+                
+        def on_epoch_begin(self, epoch, logs):
+            self.start_time = time.time()
     
-epoch_history = EpochHistory('epoch_history.csv')    
+        def on_epoch_end(self,epoch,logs):
+            current_epoch = epoch+ next_epoch
+            self.end_time = time.time()
+            self.elapsed_time = self.end_time - self.start_time        
+            writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+            writer.writerow({'epoch':current_epoch, 'start_time':self.start_time, 
+                             'end_time':self.end_time,'elapsed_time':self.elapsed_time})
+            self.csvfile.flush()
+        
+    epoch_history = EpochHistory('epoch_history.csv')    
 
 csv_logger = CSVLogger2('epoch_logs.csv', separator=',', append=True) # important for continuous learning        
 stopearly = EarlyStopping(monitor='val_loss',min_delta=0, patience=2, verbose=1)

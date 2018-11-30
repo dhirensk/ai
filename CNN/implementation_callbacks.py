@@ -45,11 +45,12 @@ classifier.compile(optimizer= 'adam',loss='binary_crossentropy',metrics=['accura
 #we also overwrite the entire saved model when we see improvements in validation loss
 
 import os.path
+model_found = False
 try :
     if os.path.isfile('CNN_model.h5'):
         classifier.load_weights('CNN_model.h5')
-        
-        print("file found CNN_model.h5")
+        model_found = True
+        print("file found CNN_model.h5. Training will be resumed")
     else:
         print("No Model Weights found. Training from beginning")
 except Exception as e:
@@ -68,13 +69,15 @@ except Exception as e:
 from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 checkpoint = ModelCheckpoint('CNN_model.h5',monitor='val_loss',save_best_only=True,verbose=1, save_weights_only=False)
 next_epoch = 0
-try:
-    if os.path.isfile('epoch_logs.csv'):
-        logfile = pd.read_csv('epoch_logs.csv',header=0)
-        next_epoch = int(logfile.iloc[-1,0])+1
-        
-except Exception as e:
-    print(e)
+
+if model_found:
+    try:
+        if os.path.isfile('epoch_logs.csv'):
+            logfile = pd.read_csv('epoch_logs.csv',header=0)
+            next_epoch = int(logfile.iloc[-1,0])+1
+            
+    except Exception as e:
+        print(e)
 
 class CSVLogger2(CSVLogger):
         def __init__(self, filename, separator, append):       
@@ -85,17 +88,18 @@ class CSVLogger2(CSVLogger):
             
 
 
-    class EpochHistory(Callback):
-        def __init__(self, filename):
-            self.filename = filename
-            self.fieldnames = ['epoch','start_time','end_time','elapsed_time']
-            self.csvfile = None
-            if not os.path.isfile(self.filename):  # no existing log file
-                self.csvfile = open(self.filename, 'a', newline = '') 
-                writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
-                writer.writeheader() 
-                self.csvfile.flush()
-            else:
+class EpochHistory(Callback):
+    def __init__(self, filename):
+        self.filename = filename
+        self.fieldnames = ['epoch','start_time','end_time','elapsed_time']
+        self.csvfile = None
+        if not os.path.isfile(self.filename):  # no existing log file
+            self.csvfile = open(self.filename, 'a', newline = '') 
+            writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+            writer.writeheader() 
+            self.csvfile.flush()
+        else:
+            if model_found:
                 file_read = open(self.filename, 'r', newline = '') #cannot read/write using same object
                 try:
                     if not csv.Sniffer().has_header(file_read.read(1024)): # log file without header
@@ -114,26 +118,32 @@ class CSVLogger2(CSVLogger):
                         self.csvfile.flush()
                     else:
                         raise Exception(str(e))
-        def on_train_end(self):
-            self.csvfile.close()
+            else:
+                self.csvfile = open(self.filename, 'w', newline = '') 
+                writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+                writer.writeheader() 
+                self.csvfile.flush()
                 
-        def on_epoch_begin(self, epoch, logs):
-            self.start_time = time.time()
+    def on_train_end(self,logs):
+        self.csvfile.close()
+            
+    def on_epoch_begin(self, epoch, logs):
+        self.start_time = time.time()
+
+    def on_epoch_end(self,epoch,logs):
+        current_epoch = epoch+ next_epoch
+        self.end_time = time.time()
+        self.elapsed_time = self.end_time - self.start_time        
+        writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
+        writer.writerow({'epoch':current_epoch, 'start_time':self.start_time, 
+                         'end_time':self.end_time,'elapsed_time':self.elapsed_time})
+        self.csvfile.flush()
     
-        def on_epoch_end(self,epoch,logs):
-            current_epoch = epoch+ next_epoch
-            self.end_time = time.time()
-            self.elapsed_time = self.end_time - self.start_time        
-            writer = csv.DictWriter(self.csvfile, fieldnames = self.fieldnames)
-            writer.writerow({'epoch':current_epoch, 'start_time':self.start_time, 
-                             'end_time':self.end_time,'elapsed_time':self.elapsed_time})
-            self.csvfile.flush()
-        
-    epoch_history = EpochHistory('epoch_history.csv')    
+epoch_history = EpochHistory('epoch_history.csv')    
 
 csv_logger = CSVLogger2('epoch_logs.csv', separator=',', append=True) # important for continuous learning        
 stopearly = EarlyStopping(monitor='val_loss',min_delta=0, patience=2, verbose=1)
-callback_list = [csv_logger, epoch_history]
+callback_list = [checkpoint, csv_logger, epoch_history]
 #callback_list = [checkpoint, stopearly, csv_logger]
 #classifier.load_weights('CNN_model.h5')
 # Image Augmentation to avoid overfitting

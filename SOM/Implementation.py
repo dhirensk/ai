@@ -4,8 +4,12 @@ import pandas as pd
 
 
 # Fraud Detection
-dataset = pd.read_csv('Credit_Card_Application.csv')
+dataset = pd.read_csv('Credit_Card_Applications.csv')
 # archive.ics.uci.edu
 # Australian credit card approval Datset
 # All Column attributes except customer id are made meaningless to protect data privacy
 
+X = dataset.iloc[:, :-1].values
+y = dataset.iloc[:,-1].values
+
+from sklearn.preprocessing import MinMaxScaler

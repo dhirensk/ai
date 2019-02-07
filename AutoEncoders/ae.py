@@ -53,8 +53,8 @@ class SAE(nn.Module):
         self.fc4 = nn.Linear(20, nb_movies)
         self.activation = nn.Sigmoid()
     def forward(self, x):
-        x = self.activation(self.fc1(x))
-        x = self.activation(self.fc2(x))
+        x = self.activation(self.fc1(x))   #   x--->fc1--->sigmoid activation = new x
+        x = self.activation(self.fc2(x))   #   x--->fc2--->sigmoid activation = new x
         x = self.activation(self.fc3(x))
         x = self.fc4(x)
         return x

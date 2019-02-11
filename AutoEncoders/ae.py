@@ -89,7 +89,8 @@ test_loss = 0
 s = 0.
 for id_user in range(nb_users):
     input = Variable(training_set[id_user]).unsqueeze(0)
-    target = Variable(test_set[id_user])
+    #target = Variable(test_set[id_user])
+    target = Variable(test_set[id_user]).unsqueeze(0)  # need to add batch dim
     if torch.sum(target.data > 0) > 0:
         output = sae(input)
         target.require_grad = False

@@ -20,3 +20,4 @@ hist = model.fit(x_train/255,y_train,epochs=3,verbose=1)
 # Notice we need to retain the matrix shape in evalute and predict i.e. (1,n) and not n
 acc = model.evaluate(x_train[0:1]/255, y_train[0:1])
 pred = model.predict(x_train[0:1]/255)
+

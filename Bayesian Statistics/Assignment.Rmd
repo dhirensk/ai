@@ -1,0 +1,224 @@
+---
+title: "Data Analysis Project"
+author: "Dhirendra Khanka"
+date: "19-June-2019"
+output: html_notebook
+---
+
+
+# INTRODUCTION
+
+This is a simple attempt in creating a Linear Regression Model to predict Temperature based on some explainatory Variables. Consider the following dataset.  
+Daily readings of the following air quality values for May 1, 1973 (a Tuesday) to September 30, 1973.  
+Ozone: Mean ozone in parts per billion from 1300 to 1500 hours at Roosevelt Island  
+Solar.R: Solar radiation in Langleys in the frequency band 4000–7700 Angstroms from 0800 to 1200 hours at Central Park  
+Wind: Average wind speed in miles per hour at 0700 and 1000 hours at LaGuardia Airport  
+Temp: Maximum daily temperature in degrees Fahrenheit at La Guardia Airport.  
+
+Rows with missing data are omitted from dataset.
+```{r echo=FALSE}
+library("rjags")
+data("airquality")
+head(airquality)
+```
+Lets check to fit a linear model for tempature as predictor and Ozone, Solar and Wind as explainatory variables  
+### Omit Missing Records
+
+```{r echo=FALSE}
+dat = na.omit(airquality)
+head(dat)
+```
+
+
+### Data Plots of Explainatory Variables vs Predictor Variable
+
+Plot of Ozone level vs Temparature. 
+ - Looks like positive correlation between the two.
+ 
+Plot of Wind vs Temparture
+ - There seems to be a somewhat negative correlation between Temparature and Wind.
+ 
+Plot of Solar Radiation vs Temperature
+  - There does not seem to be much co-relation between Solar Radiation and Temparture. The points are well scattered. We will include it for now and later compare it with another model wherein Solar Radiation is not included using the DIC.
+
+```{r echo=FALSE}
+par(mfrow = c(2,2))
+plot(dat$Ozone, dat$Temp)
+plot(dat$Solar.R, dat$Temp)
+plot(dat$Wind, dat$Temp)
+
+```
+## JAGS MODEL 1
+
+Lets build below Linear Model considering following explanatory variables affecting temparture.  
+Temperature ~ Ozone +  Solar.R + Wind  
+
+Consider following JAGS model
+  
+temp ~iid N(mu, sig)  
+mu = Beta1 + Beta2 * Ozone + Beta3 * Solar.R + Beta4 * Wind  
+beta ~ N(0, 1e6)  
+sig ~ IG(1, 5)  
+
+
+```{r include=FALSE}
+library("rjags")
+mod_string = "model{
+  for (i in 1: length(y)){
+    y[i] ~ dnorm(mu[i], prec)
+    mu[i] = b[1] + b[2]* ozone[i] + b[3]*solar[i] + b[4]* wind[i]
+  }
+  
+  for( j in 1:4){
+    b[j] ~ dnorm(0.0, 1.0/1.0e6)
+  }
+  prec ~ dgamma(5/2,25)
+  sig2 = 1/prec
+  sig  = sqrt(sig2)
+}"
+```
+```{r include=FALSE}
+data_jags = list(y= dat$Temp, ozone = dat$Ozone, solar = dat$Solar.R, wind = dat$Wind)
+```
+
+
+```{r include=FALSE}
+
+
+mod = jags.model(textConnection(mod_string),data = data_jags, n.chains = 3)
+update(mod,n.iter = 1e3)
+params = c("b", "sig")
+mod_sim = coda.samples(mod, variable.names = params, n.iter = 5e3)
+mod_csim = as.mcmc(do.call(rbind, mod_sim))
+```
+
+
+###  Summary of Model1
+```{r}
+summary(mod_sim)
+coefficients(mod)
+```
+From summary, we find that the co-efficient for Solar Radiation is close to Zero.
+
+### DIC of Model1 
+Deviance Information Criterion
+```{r echo=FALSE}
+dic.samples(mod,n.iter = 1e3)
+```
+## JAGS Model 2
+
+Lets now build 2nd Model with following  
+
+temp ~iid N(mu, sig)  
+mu = Beta1 + Beta2 * Ozone + Beta3* Wind  
+beta ~ N(1, 1e6)  
+sig ~ IG(1, 5) 
+```{r include=FALSE}
+mod2_string = "model{
+  for (i in 1: length(y)){
+    y[i] ~ dnorm(mu[i], prec)
+    mu[i] = b[1] + b[2]* ozone[i] + b[3]* wind[i] 
+  }
+  
+  for( j in 1:3){
+    b[j] ~ dnorm(0.0, 1.0/1.0e6)
+  }
+  prec ~ dgamma(5/2,25)
+  sig2 = 1/prec
+  sig  = sqrt(sig2)
+}"
+
+data2_jags = list(y= dat$Temp, ozone = dat$Ozone, wind = dat$Wind)
+mod2 = jags.model(textConnection(mod2_string),data = data2_jags, n.chains = 3)
+update(mod2, n.iter = 1e3)
+params2 = c("b","sig")
+mod2_sim = coda.samples(mod2, variable.names = params2, n.iter = 5e3)
+
+```
+
+### Convergence Diagnostic Plots
+
+```{r}
+
+plot(mod2_sim)
+```
+### Gelman Diag
+```{r}
+gelman.diag(mod2_sim)
+```
+
+
+
+### Summary of Model2
+
+```{r}
+summary(mod2_sim)
+```
+
+### DIC of model2
+
+```{r}
+dic.samples(mod2, n.iter = 1e3)
+```
+
+### Residual and Q-Q Plot 
+Lets Plot residuals for the 2nd model with lower DIC. The residual plots does not convey any pattern and looks fine. Although there is visible variance throughout the plot, which means the predictions are not great from actual.
+
+```{r}
+coeff = coefficients(mod2)
+yhat = coeff$b[1] + coeff$b[2]* data2_jags$ozone + coeff$b[3]* data2_jags$wind
+resid = yhat - data2_jags$y
+plot(yhat, resid)
+```
+```{r}
+plot(density(resid))
+```
+
+
+The QQ plot also looks okay except for 1 far off point.
+```{r}
+qqnorm(resid)
+```
+```{r}
+mod3_string = "model{
+  for (i in 1: length(y)){
+    y[i] ~ dnorm(mu[i], prec)
+    mu[i] = b[1] + b[2]* ozone[i] + b[3]* wind[i] + b[4]* ozone[i]* ozone[i] + b[5]* wind[i]* wind[i] + b[6]* ozone[i]* wind[i]
+  }
+  
+  for( j in 1:6){
+    b[j] ~ dnorm(0.0, 1.0/1.0e6)
+  }
+  prec ~ dgamma(5/2,25)
+  sig2 = 1/prec
+  sig  = sqrt(sig2)
+}"
+
+data3_jags = list(y= dat$Temp, ozone = dat$Ozone, wind = dat$Wind)
+mod3 = jags.model(textConnection(mod3_string),data = data3_jags, n.chains = 3)
+update(mod3, n.iter = 1e3)
+params3 = c("b","sig")
+mod3_sim = coda.samples(mod3, variable.names = params3, n.iter = 5e3)
+```
+
+```{r}
+summary(mod3_sim)
+```
+```{r}
+dic.samples(mod3, n.iter = 1e3)
+```
+```{r}
+coeff = coefficients(mod3)
+yhat = coeff$b[1] + coeff$b[2]* data3_jags$ozone + coeff$b[3]* data3_jags$wind + coeff$b[4]* data3_jags$ozone * data3_jags$ozone + coeff$b[5]* data3_jags$wind * data3_jags$wind + coeff$b[6]* data3_jags$ozone * data3_jags$wind
+resid = yhat - data3_jags$y
+plot(yhat, resid, ylim = c(-30,30))
+```
+
+```{r}
+plot(density(resid))
+```
+
+
+# CONCLUSION
+
+From the two JAGS model which we build, the 2nd model is only marginally better than the first in terms of DIC. Overall the co-efficients remain largely unaffected after removing the Solar Radiation explainatory Variable. Due to simple order of the fit, the model is also modest in prediction as visible from the variation in residual Plot. 

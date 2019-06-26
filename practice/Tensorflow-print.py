@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import os
 import sys
 from tensorflow import keras
 y = np.random.randint(0,5,10)
@@ -18,3 +19,5 @@ with tf.Session() as sess:
     e = c.eval()
     print("concatenation on axis = 0 -->",d)
     print("concatenation on axis = 1 -->\n", e)
+    writer = tf.summary.FileWriter(os.getcwd()+str("\\out"))
+    writer.add_graph(sess.graph)

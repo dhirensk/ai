@@ -1,0 +1,9 @@
+# excluding below files
+*.zip
+*.tar
+*.tar.bz2
+*.tar.gzip
+*.jpeg
+*.jpg
+*.bmp
+*.h5

@@ -40,4 +40,4 @@ for i in dat:
 print("MAP ")
 dat = dat.map( lambda x: x+1)
 for i in dat:
-    print(i)
+    prin    t(i)

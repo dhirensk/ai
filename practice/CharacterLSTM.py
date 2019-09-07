@@ -142,8 +142,7 @@ class SequenceModel():
                         print("starting from epoch: ", self.epoch+1)
                     else:
                         self.epoch = 0
-        else:
-            self.sequencemodel.weights()
+
     def train(self, epochs, weights=None):
 
         self.load_weights(weights)  #load last checkpoint weight if weights = last

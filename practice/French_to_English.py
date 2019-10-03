@@ -1,6 +1,7 @@
 #  Dataset downloaded from http://www.statmt.org/europarl/v7/fr-en.tgz
 
 import tensorflow as tf
+tf.enable_eager_execution()
 from tensorflow.keras import backend as k
 from sklearn.model_selection import train_test_split
 import os
@@ -43,6 +44,7 @@ def preprocess_sentence(s):
     return s
 
 # split sentences separated by . or new line
+# use below when two different files
 def create_dataset(file1, file2, num_samples=None):
     x_lines = read_file(file1)
     y_lines = re.split('\n|\.',read_file(file1))[:num_samples]
@@ -51,10 +53,20 @@ def create_dataset(file1, file2, num_samples=None):
     Y_true = [preprocess_sentence(s) for s in y_lines]
     return X,Y_true
 
-X_text, Y_text = create_dataset("europarl-v7.fr-en.fr","europarl-v7.fr-en.en", num_samples=64)
+def create_dataset2(filename, num_samples):
+    path = os.getcwd()
+    path = os.path.join(path, filename)
+    file = io.open(path,encoding='UTF-8')
+    lines = io.open(path, encoding='UTF-8').read().strip().split('\n')
 
-print(X_text[0])
-print(Y_text[0])
+    word_pairs = [[preprocess_sentence(w) for w in l.split('\t')]  for l in lines[:num_samples]]
+
+    return zip(*word_pairs)
+#X_text, Y_text = create_dataset("europarl-v7.fr-en.fr","europarl-v7.fr-en.en", num_samples=64)
+X_text, Y_text = create_dataset2("fra.txt", num_samples=6400)
+
+print(X_text[50])
+print(Y_text[50])
 # create a function to tokenize words into index using inbuild tokenizer vocabulory
 def tokenize(input):
    tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='')
@@ -77,12 +89,12 @@ Tx = max_len(X)  #142
 Ty = max_len(Y)  #156
 
 X_tokenizer.word_index['<start>'] #'<start>': 2   # tokenize by frequency
-input_vocab_size = len(X_tokenizer.word_index)
-output_vocab_size = len(Y_tokenizer.word_index)
+input_vocab_size = len(X_tokenizer.word_index)+1  # add 1 for reserve index 0 which is not included in dictionary
+output_vocab_size = len(Y_tokenizer.word_index)+ 1
 
 #Generating tf.data.Dataset
 
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 BUFFER_SIZE = len(X_train)
 steps_per_epoch = BUFFER_SIZE//BATCH_SIZE
 embedding_dims = 256
@@ -248,25 +260,24 @@ def train_step(input_batch, output_batch,encoder_initial_cell_state):
 # training
 
 
-# in tf 1.4 the enumerate(dataset) goes into infinite loop. use iterator
+# in tf 1.4 the enumerate(dataset) goes into infinite loop.
 epochs = 10
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    for i in range(1, epochs+1):
+for i in range(1, epochs+1):
 
-        encoder_initial_cell_state = encoder.initialize_initial_state()
-        total_loss = 0.0
-        iterator = dataset.make_one_shot_iterator()
-        input_batch, output_batch = iterator.get_next()
+    encoder_initial_cell_state = encoder.initialize_initial_state()
+    total_loss = 0.0
+    iterator = dataset.make_one_shot_iterator()
+    input_batch, output_batch = iterator.get_next()
 
-        for j in range(steps_per_epoch):
-            batch_loss = sess.run(train_step(input_batch, output_batch, encoder_initial_cell_state))
-            total_loss += batch_loss
-            print("total loss: {} epoch {} batch {} ".format(total_loss, i,j))
-        #for (batch, (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
-        #    batch_loss = train_step(input_batch, output_batch, encoder_initial_cell_state)
-        #    total_loss += batch_loss
-        #    print("total loss: {} epoch {} ".format(total_loss, i))
+    for ( batch, (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
+        batch_loss = train_step(input_batch, output_batch, encoder_initial_cell_state)
+        total_loss += batch_loss
+        if batch%20 == 0:
+            print("total loss: {} epoch {} batch {} ".format(batch_loss.numpy(), i, batch))
+    #for (batch, (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
+    #    batch_loss = train_step(input_batch, output_batch, encoder_initial_cell_state)
+    #    total_loss += batch_loss
+    #    print("total loss: {} epoch {} ".format(total_loss, i))
 
 
 

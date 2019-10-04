@@ -27,8 +27,8 @@ def unicode_to_ascii(s):
 
 
 def preprocess_sentence(s):
-    s = unicode_to_ascii(s.lower().strip())
-
+    #s = unicode_to_ascii(s.lower().strip())
+    s = s.lower()
     # creating a space between a word and the punctuation following it
     # eg: "he is a boy." => "he is a boy ."
     # Reference:- https://stackoverflow.com/questions/3645931/python-padding-punctuation-with-white-spaces-keeping-punctuation
@@ -63,11 +63,12 @@ def create_dataset2(filename, num_samples):
 
     return zip(*word_pairs)
 #X_text, Y_text = create_dataset("europarl-v7.fr-en.fr","europarl-v7.fr-en.en", num_samples=64)
-X_text, Y_text = create_dataset2("fra.txt", num_samples=6400)
+X_text, Y_text = create_dataset2("fra.txt", num_samples=None)
 
 print(X_text[50])
 print(Y_text[50])
 # create a function to tokenize words into index using inbuild tokenizer vocabulory
+# important to override filter otherwise it will filter out all punctuation, plus tabs and line breaks, minus the ' character.
 def tokenize(input):
    tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='')
    tokenizer.fit_on_texts(input)
@@ -121,7 +122,7 @@ class Encoder(tf.keras.Model):
         return tf.zeros((self.batch_size, self.gru_units))
     def call(self, inputs, initial_state):
         X = self.embedding(inputs)  # [m,Tx] --> [m,Tx, embedding_dims]
-        activations, cell_state = self.GRU(X)
+        activations, cell_state = self.GRU(X, initial_state= initial_state)
         return activations, cell_state
 
 encoder = Encoder(input_vocab_size, embedding_dims, rnn_units,BATCH_SIZE)
@@ -217,7 +218,6 @@ def loss_function(y_pred, y):
 #Creates a callable TensorFlow graph from a Python function.
 #function constructs a callable that executes a TensorFlow graph (tf.Graph) created by tracing the TensorFlow operations in func.
 #This allows the TensorFlow runtime to apply optimizations and exploit parallelism in the computation defined by func.
-@tf.function
 
 def train_step(input_batch, output_batch,encoder_initial_cell_state):
     with tf.GradientTape() as tape:
@@ -261,23 +261,61 @@ def train_step(input_batch, output_batch,encoder_initial_cell_state):
 
 
 # in tf 1.4 the enumerate(dataset) goes into infinite loop.
-epochs = 10
+epochs = 1
 for i in range(1, epochs+1):
 
     encoder_initial_cell_state = encoder.initialize_initial_state()
     total_loss = 0.0
-    iterator = dataset.make_one_shot_iterator()
-    input_batch, output_batch = iterator.get_next()
 
-    for ( batch, (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
+
+    for ( batch , (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
         batch_loss = train_step(input_batch, output_batch, encoder_initial_cell_state)
         total_loss += batch_loss
-        if batch%20 == 0:
-            print("total loss: {} epoch {} batch {} ".format(batch_loss.numpy(), i, batch))
+        if (batch+1)%20 == 0:
+            print("total loss: {} epoch {} batch {} ".format(batch_loss.numpy(), i, batch+1))
     #for (batch, (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
     #    batch_loss = train_step(input_batch, output_batch, encoder_initial_cell_state)
     #    total_loss += batch_loss
     #    print("total loss: {} epoch {} ".format(total_loss, i))
+
+#Inference
+#Create input sequence to pass to encoder.
+# The input to the decoder at each time step is its previous predictions along with the hidden state and the encoder output.
+#Stop predicting when the model predicts the end token.
+#And store the attention weights for every time step.
+
+input_raw="hello man ( \nOk no Problem "
+
+
+def inference(input_raw):
+    input_lines = input_raw.split("\n")
+    # We have a transcript file containing English-Hindi pairs
+    # Preprocess X
+    input_lines = [preprocess_sentence(line) for line in input_lines]
+    input_sequences = [[X_tokenizer.word_index[w] for w in line.split(' ')] for line in input_lines]
+    input_sequences = tf.keras.preprocessing.sequence.pad_sequences(input_sequences, maxlen=Tx, padding='post')
+    output_sequences = []
+
+    for i in range(len(input_sequences)):
+        output_line= []
+        inp = tf.convert_to_tensor(input_sequences[i])
+        encoder_initial_cell_state = tf.zeros((1,rnn_units))  #batch size is 1 line of input
+        a, c_tx = encoder(inp, encoder_initial_cell_state )
+        decoder_input = tf.expand_dims(Y_tokenizer.word_index['<start>'],1)
+
+        # propagte through timesteps in decoder
+        s_prev = c_tx
+        for j in range(Ty):
+            prediction, cell_state = decoder(decoder_input, a, s_prev)
+            assert prediction.shape ==(1, output_vocab_size)
+            prediction_word = Y_tokenizer.index_word[tf.argmax(prediction).numpy()]
+            output_line.append(prediction_word)
+            if prediction_word == '<end>':
+                break
+
+        output_sequences.append(output_line)
+
+
 
 
 

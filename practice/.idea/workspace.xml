@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="89132fd4-b4bc-415a-9f11-8d988c5b29fc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+    <list default="true" id="d798c6ad-5351-4415-a95e-56fc231a89af" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/French_to_English.py" beforeDir="false" afterPath="$PROJECT_DIR$/French_to_English.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/French_to_English.py" beforeDir="false" afterPath="$PROJECT_DIR$/English_to_Hindi.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,7 +14,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectId" id="1RhRuWkzFoCDBnYfKKi34Vt1pWL" />
+  <component name="ProjectId" id="1RjCb2PzzQp1qdyKSAWDo1B0pBC" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -34,11 +33,11 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="89132fd4-b4bc-415a-9f11-8d988c5b29fc" name="Default Changelist" comment="" />
-      <created>1570117564277</created>
+      <changelist id="d798c6ad-5351-4415-a95e-56fc231a89af" name="Default Changelist" comment="" />
+      <created>1570171186109</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1570117564277</updated>
+      <updated>1570171186109</updated>
     </task>
     <servers />
   </component>

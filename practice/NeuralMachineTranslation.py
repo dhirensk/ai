@@ -1,8 +1,7 @@
 #  Dataset downloaded from http://www.statmt.org/europarl/v7/fr-en.tgz
 
 import tensorflow as tf
-tf.enable_eager_execution()
-from tensorflow.keras import backend as k
+
 from sklearn.model_selection import train_test_split
 import os
 import io
@@ -258,10 +257,23 @@ def train_step(input_batch, output_batch,encoder_initial_cell_state):
         return batch_loss
 
 # training
+#get existing checkpoint objects
+#Object based Checkpointing
+checkpointdir = os.path.join(os.getcwd(),"nmt_logs")
+chkpoint_prefix = os.path.join(checkpointdir, "chkpoint")
+if not os.path.exists(checkpointdir):
+    os.mkdir(checkpointdir)
+
+checkpoint = tf.train.Checkpoint(optimizer = optimizer, encoder = encoder, decoder = decoder)
+try:
+    checkpoint.restore(tf.train.latest_checkpoint(checkpointdir))
+    print("Checkpoint found at {}".format(tf.train.latest_checkpoint(checkpointdir)))
+except:
+    print("No checkpoint found at {}".format(checkpointdir))
 
 
 # in tf 1.4 the enumerate(dataset) goes into infinite loop.
-epochs = 1
+epochs = 2
 for i in range(1, epochs+1):
 
     encoder_initial_cell_state = encoder.initialize_initial_state()
@@ -273,6 +285,7 @@ for i in range(1, epochs+1):
         total_loss += batch_loss
         if (batch+1)%20 == 0:
             print("total loss: {} epoch {} batch {} ".format(batch_loss.numpy(), i, batch+1))
+            checkpoint.save(file_prefix = chkpoint_prefix)
     #for (batch, (input_batch, output_batch)) in enumerate(dataset.take(steps_per_epoch)):
     #    batch_loss = train_step(input_batch, output_batch, encoder_initial_cell_state)
     #    total_loss += batch_loss
@@ -284,33 +297,43 @@ for i in range(1, epochs+1):
 #Stop predicting when the model predicts the end token.
 #And store the attention weights for every time step.
 
-input_raw="hello man ( \nOk no Problem "
+input_raw="hi there ( \nwelcome no Problem "
+#def inference(input_raw):
+input_lines = input_raw.split("\n")
+# We have a transcript file containing English-Hindi pairs
+# Preprocess X
+input_lines = [preprocess_sentence(line) for line in input_lines]
+input_sequences = [[X_tokenizer.word_index[w] for w in line.split(' ')] for line in input_lines]
+input_sequences = tf.keras.preprocessing.sequence.pad_sequences(input_sequences, maxlen=Tx, padding='post')
+print(input_sequences.shape)
+output_sequences = []
+
+# iterate for each row of input
+for i in range(len(input_sequences)):
+    output_line= []
+    inp = tf.convert_to_tensor(tf.expand_dims(input_sequences[i],axis = 0))
+    print(inp.shape)  # [1, tx]
+    encoder_initial_cell_state = tf.zeros((1,rnn_units))  #batch size is 1 line of input
+    print(encoder_initial_cell_state.shape)
+    a, c_tx = encoder(inp, encoder_initial_cell_state )
+    print("a :",a.shape)
+    print("c_tx : ",c_tx.shape)
+    decoder_input = tf.expand_dims([Y_tokenizer.word_index['<start>']],axis = 0)  # [batch_size=1, ty=1]
+    print(decoder_input.shape)
+
+    # propagte through timesteps in decoder
+    s_prev = c_tx
+    for j in range(Ty):
+        prediction, cell_state = decoder(decoder_input, a, s_prev)
+        print(prediction.shape)
+        assert prediction.shape ==(1, output_vocab_size)
+        #  (1, 19803)--> prediction[0] --> (19803,)
+        prediction_word = Y_tokenizer.index_word[tf.argmax(prediction[0]).numpy()]
+        print(prediction[0].numpy())
+        output_line.append(prediction_word)
+        if prediction_word == '<end>':
+            break
+
+    output_sequences.append(output_line)
 
 
-def inference(input_raw):
-    input_lines = input_raw.split("\n")
-    # We have a transcript file containing English-Hindi pairs
-    # Preprocess X
-    input_lines = [preprocess_sentence(line) for line in input_lines]
-    input_sequences = [[X_tokenizer.word_index[w] for w in line.split(' ')] for line in input_lines]
-    input_sequences = tf.keras.preprocessing.sequence.pad_sequences(input_sequences, maxlen=Tx, padding='post')
-    output_sequences = []
-
-    for i in range(len(input_sequences)):
-        output_line= []
-        inp = tf.convert_to_tensor(input_sequences[i])
-        encoder_initial_cell_state = tf.zeros((1,rnn_units))  #batch size is 1 line of input
-        a, c_tx = encoder(inp, encoder_initial_cell_state )
-        decoder_input = tf.expand_dims(Y_tokenizer.word_index['<start>'],1)
-
-        # propagte through timesteps in decoder
-        s_prev = c_tx
-        for j in range(Ty):
-            prediction, cell_state = decoder(decoder_input, a, s_prev)
-            assert prediction.shape ==(1, output_vocab_size)
-            prediction_word = Y_tokenizer.index_word[tf.argmax(prediction).numpy()]
-            output_line.append(prediction_word)
-            if prediction_word == '<end>':
-                break
-
-        output_sequences.append(output_line)

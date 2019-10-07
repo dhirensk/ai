@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="12987d7b-1908-4078-b2f4-945e10ab7532" name="Default Changelist" comment="">
+    <list default="true" id="6c56ec9d-5a30-4c0e-98e1-cfa0da471835" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NeuralMachineTranslation.py" beforeDir="false" afterPath="$PROJECT_DIR$/NeuralMachineTranslation.py" afterDir="false" />
     </list>
@@ -14,7 +14,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectId" id="1RpMH6CZVN4iIJ3l849SJNLkdDb" />
+  <component name="ProjectId" id="1RsAefZykFI1J0hoMhzZ3XWbQ82" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -33,11 +33,11 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="12987d7b-1908-4078-b2f4-945e10ab7532" name="Default Changelist" comment="" />
-      <created>1570359493834</created>
+      <changelist id="6c56ec9d-5a30-4c0e-98e1-cfa0da471835" name="Default Changelist" comment="" />
+      <created>1570445527691</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1570359493834</updated>
+      <updated>1570445527691</updated>
     </task>
     <servers />
   </component>

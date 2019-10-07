@@ -34,7 +34,8 @@ def preprocess_sentence(s):
     s = re.sub(r"([?.!,¿])", r" \1 ", s)
     s = re.sub(r'[" "]+', " ", s)
     # replacing everything with space except (a-z, A-Z, ".", "?", "!", ",")
-    s = re.sub(r"[^a-zA-Z?.!,¿]+", " ", s)
+    # cannot do this for non-english letters, can be done for french, spanish, german
+    #s = re.sub(r"[^a-zA-Z?.!,¿]+", " ", s)
 
     s = s.rstrip().strip()
     # adding a start and an end token to the sentence
@@ -62,7 +63,7 @@ def create_dataset2(filename, num_samples):
 
     return zip(*word_pairs)
 #X_text, Y_text = create_dataset("europarl-v7.fr-en.fr","europarl-v7.fr-en.en", num_samples=64)
-X_text, Y_text = create_dataset2("fra.txt", num_samples=None)
+X_text, Y_text = create_dataset2("hin.txt", num_samples=None)
 
 print(X_text[50])
 print(Y_text[50])
@@ -297,8 +298,8 @@ for i in range(1, epochs+1):
 #Stop predicting when the model predicts the end token.
 #And store the attention weights for every time step.
 
-input_raw="hi there ( \nwelcome no Problem "
-#def inference(input_raw):
+input_raw = "Welcome Customers.\nYour car is ready."
+# def inference(input_raw):
 input_lines = input_raw.split("\n")
 # We have a transcript file containing English-Hindi pairs
 # Preprocess X
@@ -310,30 +311,43 @@ output_sequences = []
 
 # iterate for each row of input
 for i in range(len(input_sequences)):
-    output_line= []
-    inp = tf.convert_to_tensor(tf.expand_dims(input_sequences[i],axis = 0))
+    output_line = []
+    inp = tf.convert_to_tensor(tf.expand_dims(input_sequences[i], axis=0))
     print(inp.shape)  # [1, tx]
-    encoder_initial_cell_state = tf.zeros((1,rnn_units))  #batch size is 1 line of input
+    encoder_initial_cell_state = tf.zeros((1, rnn_units))  # batch size is 1 line of input
     print(encoder_initial_cell_state.shape)
-    a, c_tx = encoder(inp, encoder_initial_cell_state )
-    print("a :",a.shape)
-    print("c_tx : ",c_tx.shape)
-    decoder_input = tf.expand_dims([Y_tokenizer.word_index['<start>']],axis = 0)  # [batch_size=1, ty=1]
+    a, c_tx = encoder(inp, encoder_initial_cell_state)
+    print("a :", a.shape)
+    print("c_tx : ", c_tx.shape)
+    decoder_input = tf.expand_dims([Y_tokenizer.word_index['<start>']], axis=0)  # [batch_size=1, ty=1]
     print(decoder_input.shape)
 
     # propagte through timesteps in decoder
     s_prev = c_tx
     for j in range(Ty):
         prediction, cell_state = decoder(decoder_input, a, s_prev)
-        print(prediction.shape)
-        assert prediction.shape ==(1, output_vocab_size)
+        # print(prediction.shape)  [1, 3025]
+
+        assert prediction.shape == (1, output_vocab_size)
         #  (1, 19803)--> prediction[0] --> (19803,)
-        prediction_word = Y_tokenizer.index_word[tf.argmax(prediction[0]).numpy()]
-        print(prediction[0].numpy())
+        prediction_index = tf.argmax(prediction[0]).numpy()
+        #pass predicted output as decoder input for next time step
+        decoder_input = tf.expand_dims([prediction_index], axis=0)  # [1,1]
+        prediction_word = Y_tokenizer.index_word[prediction_index]
+        # print(prediction[0].numpy())
         output_line.append(prediction_word)
         if prediction_word == '<end>':
             break
 
     output_sequences.append(output_line)
 
+print(input_raw,"\n")
+for i in range(len(output_sequences)):
+    output =  ' '.join([w for w in  output_sequences[i][:-1]])
+    print(output)
 
+#Welcome Customers.
+#Your car is ready.
+
+#आपका स्वागत है।
+#गाड़ी तैयार है।

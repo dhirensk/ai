@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-global_init = tf.global_variables_initializer()
+#global_init = tf.global_variables_initializer()
 
 logdir = os.path.join(os.getcwd() + "tensorboard")
 
@@ -86,5 +86,3 @@ nbf= 32
 for i in range(32):
     plt.subplot(nbf/columns, columns,i+1) #index from 1 in subplot
     plt.imshow(conv1_activations[0,:,:,i])
-
-

@@ -27,7 +27,7 @@ def unicode_to_ascii(s):
 
 def preprocess_sentence(s):
     #s = unicode_to_ascii(s.lower().strip())
-    s = s.lower()
+    s = s.lower().strip()
     # creating a space between a word and the punctuation following it
     # eg: "he is a boy." => "he is a boy ."
     # Reference:- https://stackoverflow.com/questions/3645931/python-padding-punctuation-with-white-spaces-keeping-punctuation
@@ -137,12 +137,6 @@ print(sample_cell_state.shape) #(64, 1024)   batch_size, rnn_units
 # attention weights : concatenator [a, s<t-1>] --> Dense(10) [m,tx,10]--> Dense(1)[m,tx,1] -->tanh --> softmax --> alphas
 # context vector : dot (alphas , a, axes =1) --> [m,tx,n_a] --> [m,tx]   or aphas * a --> tf.reduce_sum(axis =1)
 
-#Global Attention Model
-
-#The idea of a global attentional model is to consider all the hidden states of the encoder when deriving the context
-# vector ct. In this model type, a variable-length alignment vector a<t> (attention_weights), whose size equals the
-# number of timesteps on the source side, is derived by comparing the current target hidden state h<t> with each source hidden state ̄hs:
-
 class Attention(tf.keras.Model):
     def __init__(self, dense_units):
         super().__init__()
@@ -151,13 +145,10 @@ class Attention(tf.keras.Model):
         self.dense2 = tf.keras.layers.Dense(1)
 
     def call(self, a, s_prev):
-        #Bahdanau's Additive Style
         s_prev = tf.expand_dims(s_prev, axis=1) # s_prev [ m, n_s] --> [m, 1, n_s] #add dimension for tx for compatibility
         score =  self.dense1_s_prev(s_prev) + self.dense1_a(a) # [m, tx, n_s+n_a] --> [m, tx, dense_units]
         score = tf.nn.tanh(self.dense2(score)) #   [m,tx,dense_units] -> [m, tx, 1]
         attention_weights = tf.nn.softmax(score, axis = 1)  # [m,tx,1] (64,142,1)
-
-        #Luong's Multiplicative Style
 
         #context vectors
 
@@ -196,6 +187,7 @@ class Decoder(tf.keras.Model):
         activations, cell_state = self.GRU(embedding_context)   #[m,1,rnn_units], [m,rnn_units]
         activations = tf.reshape(activations,[-1, activations.shape[2]])  # [m, rnn_units] # remove dim for tx
         output = self.dense(activations)
+        output = tf.nn.tanh(output)   ### 20191013
         # Use Argmax at inference time
         return output, cell_state
 

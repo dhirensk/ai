@@ -48,7 +48,8 @@ def build_out_layer(conv2d):
 
 conv = build_conv_layers(input)
 output = build_out_layer(conv)
-mnist_model = tf.keras.Model(inputs = input, outputs = output)
+mnist_model = tf.keras.Model(inputs = input, outputs = output )
+print(mnist_model.input_names)
 
 mnist_model.compile(optimizer=tf.keras.optimizers.Adam(),loss=tf.keras.losses.categorical_crossentropy,metrics=['accuracy'])
 mnist_model.fit(x_train,y_train, validation_data=(x_test,y_test),epochs=1,batch_size=128 , callbacks=[tensorboard_callback])

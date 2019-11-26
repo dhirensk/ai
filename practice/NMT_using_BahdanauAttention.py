@@ -8,6 +8,7 @@ import io
 import numpy as np
 import re
 import unicodedata
+import tensorflow_addons as tfa
 
 def read_file(filename):
     path = os.getcwd()
@@ -179,7 +180,7 @@ class Decoder(tf.keras.Model):
         super().__init__()
         self.embedding_layer = tf.keras.layers.Embedding(output_vocab_size, embedding_dims)
         self.attention_layer = Attention(rnn_units)
-        self.BahdanauAttention = tf.contrib.
+
         self.GRU = tf.keras.layers.GRU(rnn_units, return_sequences=True, return_state=True)
         self.dense = tf.keras.layers.Dense(output_vocab_size)
 
@@ -187,7 +188,11 @@ class Decoder(tf.keras.Model):
         #unlike encoder which will encode all timesteps, the decoder will work on 1 timestep at a time,
         # because context needs to be generated at each step, so input will of shape m,1
         embeddings = self.embedding_layer(Y)  # [m, 1, output_vocab_size] --> [m, 1, embedding_dims]
-        attention_weights, context_vector = attention_layer(a, s_prev)
+        #attention_weights, context_vector = attention_layer(a, s_prev)
+        attention_weights = tfa.seq2seq.BahdanauAttention(num_units=1024, memory=a,memory_sequence_length=Tx)
+
+        context_weights = attention_weights * a  # [m,tx,n_a]   (64,142,1024)
+        context_vector = tf.reduce_sum( context_weights, axis=1)  #[m,tx]   (64,142)
         # decoder timestep receives activations from previous time step which is used to calculate context
         # merge context and embeddings to pass as input to GRU
         # context_vector.shape [m, rnn_units]

@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6c56ec9d-5a30-4c0e-98e1-cfa0da471835" name="Default Changelist" comment="">
+    <list default="true" id="3b9c56c5-0c47-40b7-b027-3bfa42c4d576" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CharacterLSTMFunctional.py" beforeDir="false" afterPath="$PROJECT_DIR$/CharacterLSTMFunctional.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Custom_training_loop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Custom_training_loop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NMT_using_BahdanauAttention.py" beforeDir="false" afterPath="$PROJECT_DIR$/NMT_using_BahdanauAttention.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NeuralMachineTranslation.py" beforeDir="false" afterPath="$PROJECT_DIR$/NeuralMachineTranslation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuralMachineTranslation_Luong.py" beforeDir="false" afterPath="$PROJECT_DIR$/NeuralMachineTranslation_Luong.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tf_mnist_functional.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf_mnist_functional.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tf_mnist_subclassing.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf_mnist_subclassing.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,7 +20,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectId" id="1RsAefZykFI1J0hoMhzZ3XWbQ82" />
+  <component name="ProjectId" id="1U3M4M8lsKj63nXCOWW2odn1xem" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -33,11 +39,11 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="6c56ec9d-5a30-4c0e-98e1-cfa0da471835" name="Default Changelist" comment="" />
-      <created>1570445527691</created>
+      <changelist id="3b9c56c5-0c47-40b7-b027-3bfa42c4d576" name="Default Changelist" comment="" />
+      <created>1574580633439</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1570445527691</updated>
+      <updated>1574580633439</updated>
     </task>
     <servers />
   </component>

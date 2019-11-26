@@ -1,4 +1,14 @@
-#  Dataset downloaded from http://www.statmt.org/europarl/v7/fr-en.tgz
+
+#Without Attention the decoder does not produce meaningful translation. Greedysampling is is inadequate without attention
+#Welcome Customers.
+#Your car is ready.
+
+
+#वह अपने बेटे के लिए बहुत सारे पैसे नहीं है।
+#वह अपने बेटे के लिए बहुत सारे पैसे नहीं है।
+
+
+#french to english #  Dataset downloaded from http://www.statmt.org/europarl/v7/fr-en.tgz
 
 import tensorflow as tf
 
@@ -8,6 +18,7 @@ import io
 import numpy as np
 import re
 import unicodedata
+
 
 def read_file(filename):
     path = os.getcwd()
@@ -143,7 +154,7 @@ print(sample_cell_state.shape) #(64, 1024)   batch_size, rnn_units
 # vector ct. In this model type, a variable-length alignment vector a<t> (attention_weights), whose size equals the
 # number of timesteps on the source side, is derived by comparing the current target hidden state h<t> with each source hidden state ̄hs:
 
-class Attention(tf.keras.layers.Layer):
+class Attention(tf.keras.Model):
     def __init__(self, dense_units):
         super().__init__()
         self.dense1_a = tf.keras.layers.Dense(dense_units)
@@ -179,6 +190,7 @@ class Decoder(tf.keras.Model):
         super().__init__()
         self.embedding_layer = tf.keras.layers.Embedding(output_vocab_size, embedding_dims)
         self.attention_layer = Attention(rnn_units)
+
         self.GRU = tf.keras.layers.GRU(rnn_units, return_sequences=True, return_state=True)
         self.dense = tf.keras.layers.Dense(output_vocab_size)
 
@@ -186,14 +198,9 @@ class Decoder(tf.keras.Model):
         #unlike encoder which will encode all timesteps, the decoder will work on 1 timestep at a time,
         # because context needs to be generated at each step, so input will of shape m,1
         embeddings = self.embedding_layer(Y)  # [m, 1, output_vocab_size] --> [m, 1, embedding_dims]
-        attention_weights, context_vector = attention_layer(a, s_prev)
-        # decoder timestep receives activations from previous time step which is used to calculate context
-        # merge context and embeddings to pass as input to GRU
-        # context_vector.shape [m, rnn_units]
-        context_vector_reshape = tf.expand_dims(context_vector, axis=1) # [m,1,rnn_units]
-        #concatenate context_vector with embeddings for m,T<x> timestep on last dimension
-        embedding_context = tf.concat([embeddings, context_vector_reshape], axis=-1)  # [m,1, embedding_dims+ rnn_units]
-        activations, cell_state = self.GRU(embedding_context)   #[m,1,rnn_units], [m,rnn_units]
+        #attention_weights, context_vector = attention_layer(a, s_prev)
+
+        activations, cell_state = self.GRU(embeddings)   #[m,1,rnn_units], [m,rnn_units]
         activations = tf.reshape(activations,[-1, activations.shape[2]])  # [m, rnn_units] # remove dim for tx
         output = self.dense(activations)
         # Use Argmax at inference time
@@ -229,10 +236,10 @@ def loss_function(y_pred, y):
 #This allows the TensorFlow runtime to apply optimizations and exploit parallelism in the computation defined by func.
 
 def train_step(input_batch, output_batch,encoder_initial_cell_state):
+    # initialize loss = 0
+    loss = 0
     with tf.GradientTape() as tape:
 
-        #initialize loss = 0
-        loss = 0
         # we can do initialization in outer block
         #encoder_initial_cell_state = encoder.initialize_initial_state()
         a, c_tx = encoder(input_batch, encoder_initial_cell_state)
@@ -257,7 +264,7 @@ def train_step(input_batch, output_batch,encoder_initial_cell_state):
 
         batch_loss = loss/Ty
         #Returns the list of all layer variables / weights.
-        variables = encoder.variables + decoder.variables
+        variables = encoder.trainable_variables + decoder.trainable_variables
         # differentiate loss wrt variables
         gradients = tape.gradient(loss, variables)
 
@@ -283,7 +290,7 @@ except:
 
 
 # in tf 1.4 the enumerate(dataset) goes into infinite loop.
-epochs = 2
+epochs = 15
 for i in range(1, epochs+1):
 
     encoder_initial_cell_state = encoder.initialize_initial_state()
@@ -355,8 +362,10 @@ for i in range(len(output_sequences)):
     output =  ' '.join([w for w in  output_sequences[i][:-1]])
     print(output)
 
+#Without Attention the decoder does not produce meaningful translation. Greedysampling is is inadequate without attention
 #Welcome Customers.
 #Your car is ready.
 
-#आपका स्वागत है।
-#गाड़ी तैयार है।
+
+#वह अपने बेटे के लिए बहुत सारे पैसे नहीं है।
+#वह अपने बेटे के लिए बहुत सारे पैसे नहीं है।

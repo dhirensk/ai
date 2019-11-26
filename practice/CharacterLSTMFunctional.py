@@ -118,6 +118,7 @@ class SequenceModel():
         input = tf.keras.Input(shape=(Tx,), dtype= tf.float32)
         embedding = tf.keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dims, batch_input_shape=[batch_size, None],
                                   trainable=True, name='embed')(input)
+
         lstm_cell = tf.keras.layers.LSTM(n_a, return_sequences= True, stateful=False, name='lstm')(embedding)
         output = tf.keras.layers.Dense(vocab_size, name='output')(lstm_cell)
         return tf.keras.Model(inputs = input, outputs = output)

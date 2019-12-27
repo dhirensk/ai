@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3b9c56c5-0c47-40b7-b027-3bfa42c4d576" name="Default Changelist" comment="">
+    <list default="true" id="66a3729d-d745-4d41-b00d-2ca9c52e7b15" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/samples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/practice.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/practice.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CharacterLSTMFunctional.py" beforeDir="false" afterPath="$PROJECT_DIR$/CharacterLSTMFunctional.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Custom_training_loop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Custom_training_loop.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NMT_using_BahdanauAttention.py" beforeDir="false" afterPath="$PROJECT_DIR$/NMT_using_BahdanauAttention.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NeuralMachineTranslation.py" beforeDir="false" afterPath="$PROJECT_DIR$/NeuralMachineTranslation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NeuralMachineTranslation_Luong.py" beforeDir="false" afterPath="$PROJECT_DIR$/NeuralMachineTranslation_Luong.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tf_mnist_functional.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf_mnist_functional.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tf_mnist_subclassing.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf_mnist_subclassing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../models/official/nlp/bert/classifier_data_lib.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../models/official/nlp/bert/classifier_data_lib.py" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,17 +17,25 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectId" id="1U3M4M8lsKj63nXCOWW2odn1xem" />
+  <component name="ProjectId" id="1V9L8joE5oeUPOOeBZmPc2WPRnJ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
-  <component name="RunDashboard">
-    <option name="ruleStates">
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
       <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
       </list>
     </option>
   </component>
@@ -39,23 +44,18 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="3b9c56c5-0c47-40b7-b027-3bfa42c4d576" name="Default Changelist" comment="" />
-      <created>1574580633439</created>
+      <changelist id="66a3729d-d745-4d41-b00d-2ca9c52e7b15" name="Default Changelist" comment="" />
+      <created>1576660206989</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1574580633439</updated>
+      <updated>1576660206989</updated>
     </task>
     <servers />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
+  <component name="WindowStateProjectService">
+    <state x="477" y="244" key="com.intellij.ide.util.TipDialog" timestamp="1577450910963">
+      <screen x="0" y="0" width="1536" height="834" />
+    </state>
+    <state x="477" y="244" key="com.intellij.ide.util.TipDialog/0.0.1536.834@0.0.1536.834" timestamp="1577450910963" />
   </component>
 </project>

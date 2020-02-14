@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66a3729d-d745-4d41-b00d-2ca9c52e7b15" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/samples.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/practice.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/practice.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AutoML_Disaster_Tweets.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../models/official/nlp/bert/classifier_data_lib.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../models/official/nlp/bert/classifier_data_lib.py" afterDir="false" />
     </list>
@@ -14,8 +11,15 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../models" />
   </component>
   <component name="ProjectId" id="1V9L8joE5oeUPOOeBZmPc2WPRnJ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -53,9 +57,17 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="477" y="244" key="com.intellij.ide.util.TipDialog" timestamp="1577450910963">
+    <state x="490" y="159" width="540" height="524" key="StructurePopup" timestamp="1578313798024">
       <screen x="0" y="0" width="1536" height="834" />
     </state>
-    <state x="477" y="244" key="com.intellij.ide.util.TipDialog/0.0.1536.834@0.0.1536.834" timestamp="1577450910963" />
+    <state x="490" y="159" width="540" height="524" key="StructurePopup/0.0.1536.834@0.0.1536.834" timestamp="1578313798024" />
+    <state width="776" height="424" key="XDebugger.FullValuePopup" timestamp="1577883778568">
+      <screen x="0" y="0" width="1536" height="834" />
+    </state>
+    <state width="776" height="424" key="XDebugger.FullValuePopup/0.0.1536.834@0.0.1536.834" timestamp="1577883778568" />
+    <state x="477" y="244" key="com.intellij.ide.util.TipDialog" timestamp="1578306119505">
+      <screen x="0" y="0" width="1536" height="834" />
+    </state>
+    <state x="477" y="244" key="com.intellij.ide.util.TipDialog/0.0.1536.834@0.0.1536.834" timestamp="1578306119505" />
   </component>
 </project>
